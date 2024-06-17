@@ -1,0 +1,16 @@
+.hotelsBtn{
+    width: 100px;
+    height: 40px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+}
+.hotelsBtn:hover{
+    width: 100px;
+    height: 40px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    background-color: #112678;
+    color: white;
+}

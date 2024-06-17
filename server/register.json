@@ -1,0 +1,9 @@
+{
+    "imgUrl" :"String",
+    "firstName": "String",
+    "lastName" :"String",
+    "email" :"test@test.com",
+    "password": "testtest",
+    "phoneNumber": 1254126,
+    "location": "String"
+  }
