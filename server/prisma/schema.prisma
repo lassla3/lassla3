@@ -1,0 +1,190 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             Int             @id @default(autoincrement())
+  imgUrl         String
+  firstName      String
+  lastName       String
+  email          String          @unique
+  password       String
+  phoneNumber    Int
+  longitude      Float?
+  latitude       Float?
+  isActive       Boolean         @default(true)
+  activationCode String
+  role           Role?           @default(user)
+  owner          Owner?          @relation(fields: [ownerId], references: [id])
+  ownerId        Int?            @unique
+  reservation    Reservation[]
+  message        Message[]
+  join           JoinChat[]
+  reviw          Review[]
+  negociate      Negotiation[]
+  favoritedBy    FavoriteHotel[]
+}
+
+enum Role {
+  owner
+  user
+}
+
+model Hotel {
+  id          Int             @id @default(autoincrement())
+  name        String
+  imgUrl      String?
+  longitude   Float?
+  latitude    Float?
+  description String
+  rating      Int
+  rooms       Int
+  licence     String
+  owner       Owner?          @relation(fields: [ownerId], references: [id])
+  ownerId     Int?
+  room        Room[]
+  media       Media[]
+  review      Review[]
+  favoritedBy FavoriteHotel[]
+}
+
+enum MealPlan {
+  breakFast
+  all_Inclusive
+  halfBoard
+}
+
+model Option {
+  id        Int      @id @default(autoincrement())
+  Meal_Plan MealPlan
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId    Int
+}
+
+model Owner {
+  id   Int   @id @default(autoincrement())
+  user User?
+
+  hotel Hotel[]
+}
+
+model Reservation {
+  id        Int      @id @default(autoincrement())
+  room      Room     @relation(fields: [roomId], references: [id])
+  roomId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  startDate DateTime
+  endDate   DateTime
+}
+
+model Room {
+  id              Int               @id @unique @default(autoincrement())
+  hotel           Hotel             @relation(fields: [hotelId], references: [id])
+  hotelId         Int
+  reservation     Reservation[]
+  dayAvailability DayAvailability[]
+  price           Int
+  capacity        Int
+  option          Option[]
+  view            View
+  reduction       Boolean           @default(false)
+  rate            Int
+  mediaroom       MediaRoom[]
+  negociate       Negotiation[]
+}
+
+enum View {
+  seaView
+  standerView
+}
+
+model DayAvailability {
+  id           Int     @id @default(autoincrement())
+  room         Room    @relation(fields: [roomId], references: [id])
+  roomId       Int     @unique
+  availability Boolean @default(true)
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     User     @relation(fields: [userId], references: [id])
+  userId    Int
+  room      RoomChat @relation(fields: [roomId], references: [id]) // This establishes a many-to-one relationship with Room
+  roomId    Int
+}
+
+model RoomChat {
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String
+  messages    Message[]
+  join        JoinChat[]
+}
+
+model JoinChat {
+  id     Int      @id @default(autoincrement())
+  users  User     @relation(fields: [userId], references: [id])
+  userId Int
+  rooms  RoomChat @relation(fields: [roomId], references: [id])
+  roomId Int
+}
+
+model Review {
+  id      Int    @id @default(autoincrement())
+  stars   Int    @default(1)
+  content String
+  hotel   Hotel  @relation(fields: [hotelId], references: [id])
+  hotelId Int
+  user    User   @relation(fields: [userId], references: [id])
+  userId  Int
+}
+
+model Payment {
+  id       Int    @id @default(autoincrement())
+  amount   Int
+  currency String
+  status   String
+}
+
+model Media {
+  id      Int    @id @unique @default(autoincrement())
+  hotel   Hotel  @relation(fields: [hotelId], references: [id])
+  hotelId Int
+  link    String
+}
+
+model MediaRoom {
+  id     Int    @id @unique @default(autoincrement())
+  room   Room   @relation(fields: [roomId], references: [id])
+  roomId Int
+  link   String
+}
+
+model Negotiation {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  room      Room     @relation(fields: [roomId], references: [id])
+  roomId    Int
+  content   String
+  newPrice  Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FavoriteHotel {
+  id      Int   @id @default(autoincrement())
+  userId  Int
+  hotelId Int
+  user    User  @relation(fields: [userId], references: [id])
+  hotel   Hotel @relation(fields: [hotelId], references: [id])
+}
